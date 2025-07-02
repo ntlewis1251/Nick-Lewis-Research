@@ -210,9 +210,6 @@ __marimo__/
 .streamlit/secrets.toml
 
 #Private Shit
-USGS_StateGeologicMapCompilation_ver1.1.gdb
-USGS_SGMC_Shapefiles
-USGS_SGMC_Geodatabase
 
 #envs
 .conda
