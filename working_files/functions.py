@@ -27,18 +27,18 @@ def downloader(bounds:list, dir:str):
     Takes in NE and SW bounding coordinates as well as a directory name.  Downloads a DEM from opentopo and places it in the chosen directory.
     """
     keys = ['north','east','south','west']
-    downloader.bounds=[bounds[0],bounds[1],str(float(bounds[0])-0.125),str(float(bounds[1])-0.125)]
-    dic = dict(zip(keys, downloader.bounds))
+    downloader.bounds=[bounds]
+    dic = dict(zip(keys, bounds))
     url = f'https://portal.opentopography.org/API/usgsdem?datasetName=USGS30m&south={dic["south"]}&north={dic["north"]}&west={dic["west"]}&east={dic["east"]}&outputFormat=GTiff&API_Key={get_key("/sciclone/home/ntlewis/Nick-Lewis-Research/API_key.txt", 2)}'
     response = requests.get(url)
     with open(dir,'wb') as file:
         file.write(response.content)
 
-def get_topo(north,east,name):
+def get_topo(bounds:list,name):
     """
     Runs downloader & make dir function.  For use in jupyter notebooks.  For a self-contained script, visit ___.
     """
-    bounds = list([north,east])
+    bounds = bounds
     get_topo.name = name
     get_topo.dir = make_dir(name=get_topo.name)
     downloader(bounds=bounds, dir=get_topo.dir)
