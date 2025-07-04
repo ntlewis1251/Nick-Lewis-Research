@@ -41,21 +41,19 @@ def arr_to_df(src, win, he, m_he, wi, m_we):
     df_relief['rank'] = df_relief['Relief'].rank(pct=True)
     return df_relief
 
+# Making arr for the plot to read and reading it with the plot
 def contour_arr(df):
     arr_list=[]
-    i=0
     for y in np.arange(0, df.y.max()+333, step=333):
         arr=[]
         for x in np.arange(0, df.x.max()+333, step=333):
             mask = (df.y==y) & (df.x==x)
             arr.append((df.Relief[mask]).values[0])
         arr_list.append(arr)
-        i+=1
-        print(f'Debug {i}')
     return arr_list
 
 def make_plot(arr_list, df, src):
-    matplotlib.use('WebAgg')
+    matplotlib.use('Agg')
     fig, ax = plt.subplots(figsize=(20,20), dpi=300)
     basemap = rasterio.plot.show(src, ax=ax, cmap='binary')
     x=(df.West.unique()+df.East.unique())/2
@@ -67,18 +65,26 @@ def make_plot(arr_list, df, src):
     ax.set_xlabel('Longitude (°)')
     ax.set_ylabel('Latitude (°)')
     cbar = fig.colorbar(contours, ax=ax, label="Relief (m)", shrink=0.8, location='bottom',pad=0.05)
-    plt.show()
+    plt.savefig(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{sys.argv[6]}')
 
 def main():
     bounds=[]
+    print(f'Script name: {sys.argv[0]}')
+    print(f'North: {sys.argv[1]}')
+    print(f'East: {sys.argv[2]}')
+    print(f'South: {sys.argv[3]}')
+    print(f'West: {sys.argv[4]}')
+    print(f'.tiff output name: {sys.argv[5]}')
+    print(f'.png output name: {sys.argv[6]}')
     for x in enumerate(sys.argv[1:]):
         bounds.append(str(x[1]))
-    if os.path.exists('/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/va_regions.tiff'):
+
+    if os.path.exists(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{sys.argv[5]}'):
         print('file exists!')
     else:
         get_topo(bounds=bounds, name='va_regions.tiff')
         print('Topo got!')
-    src=rasterio.open('/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/va_regions.tiff')
+    src=rasterio.open(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{sys.argv[5]}')
     print('Raster loaded!')
     win, he, m_he, wi, m_we = make_arrays(raster=src, resolution=30, area=10000)
     print('Arrays made!')
