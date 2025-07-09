@@ -45,7 +45,7 @@ def pour_points(acc, fdir, grid): # Make Df
     gdf['acc'] = vals
 
     # Extract river network
-    branches = grid.extract_river_network(fdir, acc > 100000, apply_output_mask=False)
+    branches = grid.extract_river_network(fdir, acc > gdf.acc.describe()['50%'], apply_output_mask=False)
 
     # Put rivers in GDF
     geojson_string = json.dumps(branches, indent=2)
@@ -60,10 +60,8 @@ def pour_points(acc, fdir, grid): # Make Df
     # Get pour points
     pour_points = [(point.x, point.y) for point in pour_points_df.geometry]
     pour_points_df['tuples'] = pour_points
-    pour_points_df['geometry_WKT'] = pour_points_df.geometry.to_wkt()
-    gdf_save = pour_points_df.drop(columns=['geometry'])
-    gdf_save.to_csv('/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/pour_points')
-    print('Saved to CSV.')
+    pour_points_df.to_csv(path_or_buf='/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/pour_points.csv')
+    
 
 
 def main():

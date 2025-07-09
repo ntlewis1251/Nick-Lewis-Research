@@ -8,6 +8,14 @@ import matplotlib
 import os
 import sys
 
+"""
+Args in this order=
+N, E, S, W (all coords, use '-' to denote south of equator/ w of pm), tiff name (should be stored in data folder, include suffix), png output name (include suffix)
+
+output=
+saves png of relief contour over DEM area.  Saves CSV rep of bboxes for windows and internal relief.
+"""
+
 # Lets make some arrays and the main relief df.
 def make_arrays(raster, resolution, area):
     window_list = []
@@ -15,6 +23,7 @@ def make_arrays(raster, resolution, area):
     max_height_list = []
     width_list = []
     max_width_list = []
+    avg_elev = []
     tile_size = round(area / resolution)
     width = raster.width
     height = raster.height
@@ -24,29 +33,32 @@ def make_arrays(raster, resolution, area):
             window = rasterio.windows.Window(j, i, min(tile_size, width - j), min(tile_size, height - i))
             slice_data = raster.read(1, window=window)
             window_list.append(slice_data.max()-slice_data.min())
+            avg_elev.append((slice_data.max()+slice_data.min())/2)
             height_list.append(i)
             max_height_list.append(i+tile_size)
             width_list.append(j)
             max_width_list.append(j+tile_size)
-    return np.array(window_list), np.array(height_list), np.array(max_height_list), np.array(width_list), np.array(max_width_list)
+    return np.array(window_list), np.array(height_list), np.array(max_height_list), np.array(width_list), np.array(max_width_list), np.array(avg_elev)
 
-def arr_to_df(src, win, he, m_he, wi, m_we):
-    df_relief = pd.DataFrame(data=[win,he,m_he,wi,m_we]).T
-    df_relief.columns = ['Relief','y','max_y','x', 'max_x']
+def arr_to_df(src, win, he, m_he, wi, m_we, a_el):
+    df_relief = pd.DataFrame(data=[win,he,m_he,wi,m_we, a_el]).T
+    df_relief.columns = ['Relief','y','max_y','x', 'max_x', 'avg_elevation']
     transform = src.transform
     lon, lat = rasterio.transform.xy(transform, df_relief.y, df_relief.x)
     lon_min, lat_min = rasterio.transform.xy(transform, df_relief.max_y, df_relief.max_x)
     df_relief['North'], df_relief['West'] = lat, lon
     df_relief['South'], df_relief['East'] = lat_min, lon_min
     df_relief['rank'] = df_relief['Relief'].rank(pct=True)
+    df_to_save = df_relief.dropna(axis=0, how='any')
+    df_to_save.to_csv('/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/relief_csv.csv')
     return df_relief
 
 # Making arr for the plot to read and reading it with the plot
 def contour_arr(df):
     arr_list=[]
-    for y in np.arange(0, df.y.max()+333, step=333):
+    for y in np.arange(0, df.y.max()+33, step=33):
         arr=[]
-        for x in np.arange(0, df.x.max()+333, step=333):
+        for x in np.arange(0, df.x.max()+33, step=33):
             mask = (df.y==y) & (df.x==x)
             arr.append((df.Relief[mask]).values[0])
         arr_list.append(arr)
@@ -82,13 +94,13 @@ def main():
     if os.path.exists(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{sys.argv[5]}'):
         print('file exists!')
     else:
-        get_topo(bounds=bounds, name='va_regions.tiff')
+        get_topo(bounds=bounds, name=f'{sys.argv[5]}')
         print('Topo got!')
     src=rasterio.open(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{sys.argv[5]}')
     print('Raster loaded!')
-    win, he, m_he, wi, m_we = make_arrays(raster=src, resolution=30, area=10000)
+    win, he, m_he, wi, m_we, a_el= make_arrays(raster=src, resolution=30, area=1000)
     print('Arrays made!')
-    df = arr_to_df(src=src, win=win, he=he, m_he=m_he, wi=wi, m_we=m_we)
+    df = arr_to_df(src=src, win=win, he=he, m_he=m_he, wi=wi, m_we=m_we, a_el=a_el)
     print('Made into a dataframe')
     arrs = contour_arr(df)
     print('Contours created')

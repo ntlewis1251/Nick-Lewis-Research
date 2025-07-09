@@ -1,10 +1,10 @@
 import numpy  as np
 import requests
-import lsdtopytools as lsd
+#import lsdtopytools as lsd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import pandas as pd
-from osgeo import gdal
+#from osgeo import gdal
 import seaborn as sns
 
 def get_key(filename:str, line:int)->str:
