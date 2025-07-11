@@ -40,7 +40,7 @@ def make_arrays(raster, resolution, area):
             max_width_list.append(j+tile_size)
     return np.array(window_list), np.array(height_list), np.array(max_height_list), np.array(width_list), np.array(max_width_list), np.array(avg_elev)
 
-def arr_to_df(src, win, he, m_he, wi, m_we, a_el):
+def arr_to_df(src, win, he, m_he, wi, m_we, a_el, name):
     df_relief = pd.DataFrame(data=[win,he,m_he,wi,m_we, a_el]).T
     df_relief.columns = ['Relief','y','max_y','x', 'max_x', 'avg_elevation']
     transform = src.transform
@@ -50,7 +50,7 @@ def arr_to_df(src, win, he, m_he, wi, m_we, a_el):
     df_relief['South'], df_relief['East'] = lat_min, lon_min
     df_relief['rank'] = df_relief['Relief'].rank(pct=True)
     df_to_save = df_relief.dropna(axis=0, how='any')
-    df_to_save.to_csv('/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/relief_csv.csv')
+    df_to_save.to_csv(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{name}')
     return df_relief
 
 # Making arr for the plot to read and reading it with the plot
@@ -64,7 +64,7 @@ def contour_arr(df):
         arr_list.append(arr)
     return arr_list
 
-def make_plot(arr_list, df, src):
+def make_plot(arr_list, df, src, png):
     matplotlib.use('Agg')
     fig, ax = plt.subplots(figsize=(20,20), dpi=300)
     basemap = rasterio.plot.show(src, ax=ax, cmap='binary')
@@ -77,7 +77,7 @@ def make_plot(arr_list, df, src):
     ax.set_xlabel('Longitude (°)')
     ax.set_ylabel('Latitude (°)')
     cbar = fig.colorbar(contours, ax=ax, label="Relief (m)", shrink=0.8, location='bottom',pad=0.05)
-    plt.savefig(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{sys.argv[6]}')
+    plt.savefig(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{png}')
 
 def main():
     bounds=[]
@@ -86,25 +86,28 @@ def main():
     print(f'East: {sys.argv[2]}')
     print(f'South: {sys.argv[3]}')
     print(f'West: {sys.argv[4]}')
-    print(f'.tiff output name: {sys.argv[5]}')
+    print(f'.tiff input name: {sys.argv[5]}')
+    tiff = sys.argv[5]
     print(f'.png output name: {sys.argv[6]}')
-    for x in enumerate(sys.argv[1:]):
+    png = sys.argv[6]
+    print(f'.csv output name: {sys.argv[7]}')
+    csv = sys.argv[7]
+    for x in enumerate(sys.argv[1:5]):
         bounds.append(str(x[1]))
-
-    if os.path.exists(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{sys.argv[5]}'):
+    if os.path.exists(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{tiff}'):
         print('file exists!')
     else:
-        get_topo(bounds=bounds, name=f'{sys.argv[5]}')
+        get_topo(bounds=bounds, name=f'{tiff}')
         print('Topo got!')
-    src=rasterio.open(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{sys.argv[5]}')
+    src=rasterio.open(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{tiff}')
     print('Raster loaded!')
     win, he, m_he, wi, m_we, a_el= make_arrays(raster=src, resolution=30, area=1000)
     print('Arrays made!')
-    df = arr_to_df(src=src, win=win, he=he, m_he=m_he, wi=wi, m_we=m_we, a_el=a_el)
+    df = arr_to_df(src=src, win=win, he=he, m_he=m_he, wi=wi, m_we=m_we, a_el=a_el, name=csv)
     print('Made into a dataframe')
     arrs = contour_arr(df)
     print('Contours created')
-    make_plot(arr_list=arrs, df=df, src=src)
+    make_plot(arr_list=arrs, df=df, src=src, png=png)
 
 if __name__ == '__main__':
     main()
