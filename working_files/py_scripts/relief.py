@@ -10,7 +10,7 @@ import sys
 
 """
 Args in this order=
-N, E, S, W (all coords, use '-' to denote south of equator/ w of pm), tiff name (should be stored in data folder, include suffix), png output name (include suffix)
+N, E, S, W (all coords, use '-' to denote south of equator/ w of pm), tiff name (should be stored in data folder, include suffix), png output name (include suffix), csv output name (include suffix)
 
 output=
 saves png of relief contour over DEM area.  Saves CSV rep of bboxes for windows and internal relief.
@@ -101,7 +101,7 @@ def main():
         print('Topo got!')
     src=rasterio.open(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{tiff}')
     print('Raster loaded!')
-    win, he, m_he, wi, m_we, a_el= make_arrays(raster=src, resolution=30, area=1000)
+    win, he, m_he, wi, m_we, a_el= make_arrays(raster=src, resolution=30, area=300)
     print('Arrays made!')
     df = arr_to_df(src=src, win=win, he=he, m_he=m_he, wi=wi, m_we=m_we, a_el=a_el, name=csv)
     print('Made into a dataframe')
