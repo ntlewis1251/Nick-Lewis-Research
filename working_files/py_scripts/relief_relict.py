@@ -53,13 +53,12 @@ def relict_mapping(tri, dem, dem_name):
     xs, ys = tri.transform * (cols, rows)
     
     # Make DF
-    df = pd.DataFrame([xs, ys, dem_bool_mask, TRI_bool_mask]).T
-    df.columns = ['lon', 'lat', 'abv_90%_elev', 'blw_10%_relief']
+    df = pd.DataFrame(data=[xs.flatten(), ys.flatten(), dem_bool_mask.flatten(), TRI_bool_mask.flatten()]).T
 
     # Make plot
     fig, ax = plt.subplots(figsize=(20,20), dpi=300)
-    dem.plot(ax=ax, cmap='terrain', cbar_title='Elevation')
-    sns.scatterplot(data=df[df['abv_90%_elev'] == True] & [df['blw_10%_relief'] == True], x='lon', y='lat')
+    dem.plot(cmap='terrain')
+    sns.scatterplot(data=df[(df[2]== True) & (df[3] == True)], x=0, y=1, s=100)
     plt.savefig(f'/sciclone/home/ntlewis/Nick-Lewis-Research/working_files/data/{dem_name}_relict.png')
 
 
@@ -67,7 +66,7 @@ def main():
     print(f'Script name: {sys.argv[0]}')
     print(f'Path to DEM: {sys.argv[1]}')
     path = sys.argv[1]
-    dem_name = path.split(sep='/')[-1]
+    dem_name = path.split(sep='/')[-1][0:-5]
     dem = xdem.DEM(path)
     tri = dem.terrain_ruggedness_index(window_size = 3)
     tri_map(tri=tri, dem_name=dem_name)
