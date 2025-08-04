@@ -29,7 +29,7 @@ def downloader(bounds:list, dir:str):
     keys = ['north','east','south','west']
     downloader.bounds=[bounds]
     dic = dict(zip(keys, bounds))
-    url = f'https://portal.opentopography.org/API/usgsdem?datasetName=USGS0m&south={dic["south"]}&north={dic["north"]}&west={dic["west"]}&east={dic["east"]}&outputFormat=GTiff&API_Key={get_key("/sciclone/home/ntlewis/Nick-Lewis-Research/API_key.txt", 2)}'
+    url = f'https://portal.opentopography.org/API/usgsdem?datasetName=USGS30m&south={dic["south"]}&north={dic["north"]}&west={dic["west"]}&east={dic["east"]}&outputFormat=GTiff&API_Key={get_key("/sciclone/home/ntlewis/Nick-Lewis-Research/API_key.txt", 2)}'
     response = requests.get(url)
     with open(dir,'wb') as file:
         file.write(response.content)
