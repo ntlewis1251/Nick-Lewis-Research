@@ -1,0 +1,15 @@
+stream_analysis_notebooks
+    (dem downloader)
+    (watershed parser)
+    (ksn identifier, lsht identifier)
+    (mapper)
+    (geologic analysis)
+    (mapper pt.2)
+
+stream_analysis_scripts
+    (dem downloader)
+    (watershed parser)
+    (ksn identifier, lsht identifier)
+    (mapper)
+    (geologic analysis)
+    (mapper pt.2)
