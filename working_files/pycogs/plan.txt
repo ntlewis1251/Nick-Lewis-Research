@@ -1,7 +1,8 @@
 stream_analysis_notebooks
     (dem downloader)
     (watershed parser)
-    (ksn identifier, lsht identifier)
+    (ksn identifier)
+    (lsht identifier)
     (mapper)
     (geologic analysis)
     (mapper pt.2)
@@ -13,3 +14,8 @@ stream_analysis_scripts
     (mapper)
     (geologic analysis)
     (mapper pt.2)
+
+Nov 14 25
+make clean notebooks
+Finish BR data
+Search for APP data
